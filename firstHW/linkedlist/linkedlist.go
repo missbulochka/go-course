@@ -15,7 +15,7 @@ type LinkedList struct {
 	size uint
 }
 
-func NewLinkedList(size uint, val int) LinkedList {
+func NewLinkedList(size uint) LinkedList {
 	list := LinkedList{}
 	if size == 0 {
 		return list
@@ -24,20 +24,14 @@ func NewLinkedList(size uint, val int) LinkedList {
 	currNode := &list.head
 	for list.size < size {
 		if *currNode == nil {
-			*currNode = &Node{
-				val, nil,
-			}
+			*currNode = &Node{int(list.size), nil}
 			list.size++
-
 			if size == list.size {
 				break
 			}
 		}
 
-		(*currNode).next = &Node{
-			int(list.size) + val,
-			nil,
-		}
+		(*currNode).next = &Node{int(list.size), nil}
 		currNode = &(*currNode).next
 		list.size++
 	}
@@ -45,34 +39,48 @@ func NewLinkedList(size uint, val int) LinkedList {
 }
 
 func (list *LinkedList) returnNode(pos uint) (*Node, error) {
+	if pos > list.size {
+		return nil, errors.New("incorrect pos value")
+	}
+
 	needNode := list.head
 	for i := uint(0); i < list.size; i++ {
-		if i+1 != pos {
+		if i != pos {
 			needNode = (*needNode).next
 		} else {
-			return needNode, nil
+			break
 		}
 	}
-	return nil, errors.New("incorrect pos value")
+	return needNode, nil
 }
 
 func (list *LinkedList) Add(val int) {
+	if list.size == 0 {
+		list.head = &Node{val, nil}
+		return
+	}
+
 	lastNode, _ := list.returnNode(list.size)
 	(*lastNode).next = &Node{val, nil}
 	list.size++
 }
 
 func (list *LinkedList) Pop() {
+	if list.size == 0 {
+		fmt.Printf("Pop operation failed. Linked list is empty")
+	}
+
 	penultimateNode, _ := list.returnNode(list.size - 1)
 	(*penultimateNode).next = nil
 	list.size--
 }
 
-func (list *LinkedList) At(pos uint) (int, error) {
+func (list *LinkedList) At(pos uint) int {
 	if resNode, err := list.returnNode(pos); err == nil {
-		return resNode.value, nil
+		return resNode.value
 	} else {
-		return 0, nil
+		fmt.Println("At operation failed, return -1. Error: ", err)
+		return -1
 	}
 }
 
@@ -81,31 +89,26 @@ func (list *LinkedList) Size() uint {
 }
 
 func (list *LinkedList) DeleteFrom(pos uint) {
-	if pos == 1 {
-		list.head = (*list.head).next
-		list.size--
-	} else {
-		penultimateNode, err := list.returnNode(pos - 1)
-		if err == nil {
-			(*penultimateNode).next = (*penultimateNode).next.next
-			list.size--
-		} else {
-			fmt.Print("Operation failed. Error: ", err)
-		}
+	if list.size == 0 || pos > list.size {
+		fmt.Println("DeleteFrom operation failed, incorrect pos value")
+		return
 	}
+
+	if pos == 0 {
+		list.head = (*list.head).next
+	} else {
+		penultimateNode, _ := list.returnNode(pos - 1)
+		(*penultimateNode).next = (*penultimateNode).next.next
+	}
+	list.size--
 }
 
 func (list *LinkedList) AddTo(pos uint, val int) {
-	var penultimateNode *Node
-	var err error
-	if pos == 1 {
+	if pos == 0 {
 		tmp := list.head
 		list.head = &Node{val, tmp}
 		list.size++
-	}
-
-	penultimateNode, err = list.returnNode(pos - 1)
-	if err == nil {
+	} else if penultimateNode, err := list.returnNode(pos - 1); err == nil {
 		tmp := (*penultimateNode).next
 		(*penultimateNode).next = &Node{val, tmp}
 		list.size++
@@ -115,8 +118,7 @@ func (list *LinkedList) AddTo(pos uint, val int) {
 }
 
 func (list *LinkedList) UpdateAt(pos uint, val int) {
-	needNode, err := list.returnNode(pos)
-	if err == nil {
+	if needNode, err := list.returnNode(pos); err == nil {
 		(*needNode).value = val
 	} else {
 		fmt.Print("Operation failed. Error: ", err)
