@@ -49,10 +49,11 @@ func (list *LinkedList) returnNode(pos uint) (*Node, error) {
 func (list *LinkedList) Add(val int) {
 	if list.size == 0 {
 		list.head = &Node{val, nil}
+		list.size++
 		return
 	}
 
-	lastNode, _ := list.returnNode(list.size)
+	lastNode, _ := list.returnNode(list.size - 1)
 	(*lastNode).next = &Node{val, nil}
 	list.size++
 }
@@ -62,7 +63,7 @@ func (list *LinkedList) Pop() {
 		fmt.Printf("Pop operation failed. Linked list is empty")
 	}
 
-	penultimateNode, _ := list.returnNode(list.size - 1)
+	penultimateNode, _ := list.returnNode(list.size - 2)
 	(*penultimateNode).next = nil
 	list.size--
 }
@@ -117,6 +118,14 @@ func (list *LinkedList) UpdateAt(pos uint, val int) {
 	}
 }
 
+func (list *LinkedList) PrintList() {
+	currNode := list.head
+	for currNode != nil {
+		fmt.Println(currNode.value)
+		currNode = currNode.next
+	}
+}
+
 func NewFromSlice(s []int) *LinkedList {
 	list := LinkedList{}
 
@@ -128,5 +137,6 @@ func NewFromSlice(s []int) *LinkedList {
 			currNode = currNode.next
 		}
 	}
+	list.size = uint(len(s))
 	return &list
 }
