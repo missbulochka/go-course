@@ -1,4 +1,4 @@
-package main
+package linkedlist
 
 import (
 	"errors"
@@ -28,7 +28,12 @@ func NewLinkedList(size uint, val int) LinkedList {
 				val, nil,
 			}
 			list.size++
+
+			if size == list.size {
+				break
+			}
 		}
+
 		(*currNode).next = &Node{
 			int(list.size) + val,
 			nil,
@@ -64,8 +69,7 @@ func (list *LinkedList) Pop() {
 }
 
 func (list *LinkedList) At(pos uint) (int, error) {
-	resNode, err := list.returnNode(pos)
-	if err == nil {
+	if resNode, err := list.returnNode(pos); err == nil {
 		return resNode.value, nil
 	} else {
 		return 0, nil
@@ -117,9 +121,4 @@ func (list *LinkedList) UpdateAt(pos uint, val int) {
 	} else {
 		fmt.Print("Operation failed. Error: ", err)
 	}
-}
-
-func main() {
-	myList := NewLinkedList(5, 1)
-	myList.DeleteFrom(1)
 }

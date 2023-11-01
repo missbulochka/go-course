@@ -1,6 +1,7 @@
-FROM golang:1.21.3
+FROM golang:1.21.1
 
-COPY ./src /app/
+COPY ./linkedlist ./app/
+COPY ./main.go ./app/
 WORKDIR /app
 
 CMD go run main.go
