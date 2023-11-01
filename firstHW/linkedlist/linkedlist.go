@@ -15,27 +15,19 @@ type LinkedList struct {
 	size uint
 }
 
-func NewLinkedList(size uint) LinkedList {
+func NewLinkedList(size uint) *LinkedList {
 	list := LinkedList{}
-	if size == 0 {
-		return list
-	}
-
-	currNode := &list.head
-	for list.size < size {
-		if *currNode == nil {
-			*currNode = &Node{int(list.size), nil}
-			list.size++
-			if size == list.size {
-				break
-			}
-		}
-
-		(*currNode).next = &Node{int(list.size), nil}
-		currNode = &(*currNode).next
+	if size > 0 {
+		list.head = &Node{int(list.size), nil}
 		list.size++
+		currNode := &list.head
+		for list.size < size {
+			(*currNode).next = &Node{int(list.size), nil}
+			currNode = &(*currNode).next
+			list.size++
+		}
 	}
-	return list
+	return &list
 }
 
 func (list *LinkedList) returnNode(pos uint) (*Node, error) {
@@ -123,4 +115,18 @@ func (list *LinkedList) UpdateAt(pos uint, val int) {
 	} else {
 		fmt.Print("Operation failed. Error: ", err)
 	}
+}
+
+func NewFromSlice(s []int) *LinkedList {
+	list := LinkedList{}
+
+	if len(s) > 0 {
+		list.head = &Node{s[0], nil}
+		currNode := list.head
+		for _, val := range s[1:] {
+			currNode.next = &Node{val, nil}
+			currNode = currNode.next
+		}
+	}
+	return &list
 }
