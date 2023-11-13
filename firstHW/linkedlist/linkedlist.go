@@ -5,56 +5,56 @@ import (
 	"fmt"
 )
 
-type Node struct {
+type node struct {
 	value int
-	next  *Node
+	next  *node
 }
 
 type LinkedList struct {
-	head *Node
+	head *node
 	size uint
 }
 
 func NewLinkedList(size uint) *LinkedList {
+	if size == 0 {
+		return &LinkedList{}
+	}
 	list := LinkedList{}
-	if size > 0 {
-		list.head = &Node{int(list.size), nil}
+	list.head = &node{int(list.size), nil}
+	list.size++
+	currNode := &list.head
+	for list.size < size {
+		(*currNode).next = &node{int(list.size), nil}
+		currNode = &(*currNode).next
 		list.size++
-		currNode := &list.head
-		for list.size < size {
-			(*currNode).next = &Node{int(list.size), nil}
-			currNode = &(*currNode).next
-			list.size++
-		}
 	}
 	return &list
 }
 
-func (list *LinkedList) returnNode(pos uint) (*Node, error) {
+func (list *LinkedList) returnNode(pos uint) (*node, error) {
 	if pos > list.size {
 		return nil, errors.New("incorrect pos value")
 	}
 
 	needNode := list.head
 	for i := uint(0); i < list.size; i++ {
-		if i != pos {
-			needNode = (*needNode).next
-		} else {
+		if i == pos {
 			break
 		}
+		needNode = (*needNode).next
 	}
 	return needNode, nil
 }
 
 func (list *LinkedList) Add(val int) {
 	if list.size == 0 {
-		list.head = &Node{val, nil}
+		list.head = &node{val, nil}
 		list.size++
 		return
 	}
 
 	lastNode, _ := list.returnNode(list.size - 1)
-	(*lastNode).next = &Node{val, nil}
+	(*lastNode).next = &node{val, nil}
 	list.size++
 }
 
@@ -69,12 +69,12 @@ func (list *LinkedList) Pop() {
 }
 
 func (list *LinkedList) At(pos uint) int {
-	if resNode, err := list.returnNode(pos); err == nil {
+	resNode, err := list.returnNode(pos)
+	if err == nil {
 		return resNode.value
-	} else {
-		fmt.Println("At operation failed, return -1. Error: ", err)
-		return -1
 	}
+	fmt.Println("At operation failed, return -1. Error: ", err)
+	return -1
 }
 
 func (list *LinkedList) Size() uint {
@@ -99,11 +99,11 @@ func (list *LinkedList) DeleteFrom(pos uint) {
 func (list *LinkedList) AddTo(pos uint, val int) {
 	if pos == 0 {
 		tmp := list.head
-		list.head = &Node{val, tmp}
+		list.head = &node{val, tmp}
 		list.size++
 	} else if penultimateNode, err := list.returnNode(pos - 1); err == nil {
 		tmp := (*penultimateNode).next
-		(*penultimateNode).next = &Node{val, tmp}
+		(*penultimateNode).next = &node{val, tmp}
 		list.size++
 	} else {
 		fmt.Print("Operation failed. Error: ", err)
@@ -130,10 +130,10 @@ func NewFromSlice(s []int) *LinkedList {
 	list := LinkedList{}
 
 	if len(s) > 0 {
-		list.head = &Node{s[0], nil}
+		list.head = &node{s[0], nil}
 		currNode := list.head
 		for _, val := range s[1:] {
-			currNode.next = &Node{val, nil}
+			currNode.next = &node{val, nil}
 			currNode = currNode.next
 		}
 	}
