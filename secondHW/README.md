@@ -14,6 +14,7 @@ docker build \
 
 docker run \
     --rm \
+    -p 8080:8080 \
     -v $(pwd)/secondHW:/go/src/ \
     app-build-base:0.1.0 \
     go run ./cmd/main.go
@@ -34,5 +35,7 @@ docker build \
 
 docker run \
     --rm \
+    -d \
+    -p 8080:8080 \
     app:0.1.0
 ```
