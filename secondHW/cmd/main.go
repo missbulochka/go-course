@@ -1,7 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"net/http"
+	"secondHW/pkg/api"
+)
 
 func main() {
-	fmt.Printf("Hello, world!")
+	myApi := api.New("0.0.0.0:8080", http.NewServeMux())
+	myApi.FillEndpoints()
+	log.Fatal(myApi.ListenAndServe())
 }
