@@ -2,9 +2,12 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
+	"sync"
 )
 
 type Terms struct {
@@ -12,42 +15,40 @@ type Terms struct {
 	Term2 int `json:"term2"`
 }
 
-var operationsHistory = make(map[int]int)
+var operations = make([]string, 0)
+var mu = sync.Mutex{}
 
 func addition(w http.ResponseWriter, r *http.Request) {
+	mu.Lock()
+	defer mu.Unlock()
 	switch r.Method {
 	case http.MethodGet:
 		var err error
-		if len(operationsHistory) == 0 {
+		if len(operations) == 0 {
 			_, err = w.Write([]byte("Your map is empty\n"))
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
+		} else {
+			res := strings.Join(operations, " ")
+			_, err = w.Write([]byte(res))
 		}
-
-		for _, value := range operationsHistory {
-			_, err = w.Write([]byte(strconv.Itoa(value) + " "))
-
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
 	case http.MethodPost:
 		pair := &Terms{Term1: 1, Term2: 2}
 		err := json.NewDecoder(r.Body).Decode(pair)
 		if err != nil {
+			fmt.Println("here")
 			log.Fatal(err)
 			return
 		}
 
-		_, err = w.Write([]byte(strconv.Itoa(pair.Term1 + pair.Term2)))
+		res := pair.Term1 + pair.Term2
+		operations = append(operations, strconv.Itoa(res))
+		_, err = w.Write([]byte(operations[len(operations)-1]))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		operationsHistory[len(operationsHistory)+1] = pair.Term1 + pair.Term2
 	}
 }
